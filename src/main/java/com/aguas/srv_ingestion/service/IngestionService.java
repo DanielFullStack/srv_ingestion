@@ -1,12 +1,14 @@
 package com.aguas.srv_ingestion.service;
 
 import com.aguas.srv_ingestion.model.PressureReading;
+import com.aguas.srv_ingestion.repository.PressureReadingRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ public class IngestionService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final Executor executor;
+
+    @Autowired
+    private PressureReadingRepository repository;
 
     public IngestionService(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
@@ -45,6 +50,9 @@ public class IngestionService {
         executor.execute(() -> {
             try {
                 validateReading(reading);
+                repository.save(reading);
+                log.debug("Leitura de pressão salva para o sensor {} no banco de dados", reading.getSensorId());
+        
                 String message = objectMapper.writeValueAsString(reading);
                 kafkaTemplate.send("pressure-readings", reading.getSensorId(), message);
                 log.info("Leitura enviada para Kafka: {}", message);

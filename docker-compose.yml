@@ -43,6 +43,19 @@ services:
                 bootstrap.servers: "kafka:9092"
     networks:
       - proxynet
+  
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: aguas_user
+      POSTGRES_PASSWORD: aguas_password
+      POSTGRES_DB: aguas_db
+    ports:
+      - "5432:5432"
+    networks:
+      - proxynet
 
   srv_ingestion:
     build:
