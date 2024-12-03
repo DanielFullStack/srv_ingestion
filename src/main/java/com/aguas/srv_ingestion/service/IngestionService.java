@@ -23,8 +23,8 @@ public class IngestionService {
     private final ObjectMapper objectMapper;
     private final Executor executor;
 
-    @Autowired
-    private PressureReadingRepository repository;
+    @Autowired 
+    PressureReadingRepository repository;
 
     public IngestionService(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
